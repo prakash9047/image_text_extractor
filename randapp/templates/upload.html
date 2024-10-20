@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive design -->
+    <title>Upload Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        #uploaded-image img {
+            max-width: 100%; /* Make sure the image is responsive */
+        }
+        .error {
+            color: red; /* Style for error messages */
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        async function handleSubmit(event) {
+            event.preventDefault(); // Prevent the default form submission
+            const formData = new FormData(event.target);
+
+            const response = await fetch(event.target.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Include CSRF token
+                },
+            });
+
+            const data = await response.json(); // Parse the JSON response
+            displayResults(data); // Call function to display the results
+        }
+
+        function displayResults(data) {
+            // Clear previous results
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('uploaded-image').innerHTML = ''; // Clear previous image
+
+            // Display error message if there's any issue
+            if (data.status === 'error') {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'error';
+                errorMessage.textContent = data.message;
+                document.getElementById('results').appendChild(errorMessage);
+                return;
+            }
+
+            // Display extracted data as key-value pairs in curly braces
+            if (data.extracted_data) {
+                const jsonOutput = document.createElement('pre');
+                jsonOutput.textContent = formatJsonOutput(data.extracted_data); // Call function to format output
+                document.getElementById('results').appendChild(jsonOutput);
+            }
+
+            // Display uploaded image
+            if (data.uploaded_file_url) {
+                const imageElement = document.createElement('img');
+                imageElement.src = data.uploaded_file_url;
+                imageElement.alt = 'Uploaded Image';
+                document.getElementById('uploaded-image').appendChild(imageElement);
+            }
+        }
+
+        // Function to format JSON output
+        function formatJsonOutput(extractedData) {
+            let output = '{\n'; // Start with opening curly brace
+            for (const [key, value] of Object.entries(extractedData)) {
+                output += `  "${key.trim()}": "${value.trim()}",\n`; // Add each key-value pair
+            }
+            output = output.slice(0, -2); // Remove last comma and newline
+            output += '\n}'; // Close with closing curly brace
+            return output;
+        }
+    </script>
+</head>
+<body>
+    <h1>Upload an Image</h1>
+    <form method="POST" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
+        {% csrf_token %}
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <div id="results">
+        <!-- Results will be displayed here -->
+    </div>
+
+    <div id="uploaded-image">
+        <!-- Uploaded image will be displayed here -->
+    </div>
+</body>
+</html>
