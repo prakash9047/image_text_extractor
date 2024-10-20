@@ -1,1 +1,18 @@
+                         *************Image Text Extraction Project**********************
+Overview
+This project is a Django web application that allows users to upload images and extract text from them using Optical Character Recognition (OCR). 
 
+
+Features:
+Image Upload: Users can upload images directly through the web interface.
+Text Extraction: Utilizes Tesseract OCR to extract text from images.
+Color-Coded Extraction: Supports extraction of text based on specified colors (red and black).
+Formatted Output: The extracted text is returned in a structured key-value format.
+Responsive Design: The application is designed to be user-friendly and responsive.
+
+Technologies Used:
+Django: The web framework used to build the application.
+OpenCV: A library for image processing and computer vision tasks.
+Tesseract OCR: An open-source OCR engine for text extraction.
+Pytorch and easyocr other techniques are also be used
+HTML/CSS/JavaScript: For the front-end design and functionality.
